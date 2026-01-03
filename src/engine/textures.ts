@@ -101,7 +101,8 @@ export function drawDoorTexture(
   }
 }
 
-// 窓のテクスチャ（外の景色が見える）- 軽量版
+// 窓のテクスチャ - 軽量版
+// viewFromOutside: 外から見ているかどうか
 export function drawWindowTexture(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -109,7 +110,8 @@ export function drawWindowTexture(
   wallHeight: number,
   wallPos: number,
   brightness: number,
-  dist: number
+  dist: number,
+  viewFromOutside: boolean = false
 ) {
   const frameWidth = 0.1;
   const isFrame = wallPos < frameWidth || wallPos > 1 - frameWidth;
@@ -125,24 +127,31 @@ export function drawWindowTexture(
     return;
   }
 
-  // 窓の中（外の景色）
+  // 窓の中
   const glassTop = wallTop + topFrameHeight;
   const glassHeight = wallHeight - topFrameHeight - bottomFrameHeight;
 
-  // 外の景色を描画（帯で一括描画 - 軽量化）
-  const skyHeight = glassHeight * 0.4;
-  const skyBrightness = Math.max(50, 150 - dist * 5);
-  const grassBrightness = Math.max(30, 120 - dist * 5);
+  if (viewFromOutside) {
+    // 外から見たとき：暗い室内が見える
+    const interiorBrightness = Math.max(20, 60 - dist * 3);
+    ctx.fillStyle = rgb(interiorBrightness * 0.2, interiorBrightness * 0.15, interiorBrightness * 0.1);
+    ctx.fillRect(x, glassTop, 1, glassHeight);
+  } else {
+    // 室内から見たとき：外の景色が見える
+    const skyHeight = glassHeight * 0.4;
+    const skyBrightness = Math.max(50, 150 - dist * 5);
+    const grassBrightness = Math.max(30, 120 - dist * 5);
 
-  // 空（単色で一括描画）
-  ctx.fillStyle = sky(skyBrightness, 0.5);
-  ctx.fillRect(x, glassTop, 1, skyHeight);
+    // 空（単色で一括描画）
+    ctx.fillStyle = sky(skyBrightness, 0.5);
+    ctx.fillRect(x, glassTop, 1, skyHeight);
 
-  // 芝生（単色で一括描画）
-  const grassTop = glassTop + skyHeight;
-  const grassHeight2 = glassHeight - skyHeight;
-  ctx.fillStyle = grass(grassBrightness, 1);
-  ctx.fillRect(x, grassTop, 1, grassHeight2);
+    // 芝生（単色で一括描画）
+    const grassTop2 = glassTop + skyHeight;
+    const grassHeight2 = glassHeight - skyHeight;
+    ctx.fillStyle = grass(grassBrightness, 1);
+    ctx.fillRect(x, grassTop2, 1, grassHeight2);
+  }
 
   // 窓の桟（十字）
   const crossWidth = 0.04;
