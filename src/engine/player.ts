@@ -13,8 +13,8 @@ export type Player = {
 };
 
 export const player: Player = {
-  x: 3.5,
-  y: 3.5,
+  x: 5.5,
+  y: 5.5,
   z: 0,
   floor: 0,
   angle: 0,
