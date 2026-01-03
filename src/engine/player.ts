@@ -5,6 +5,7 @@ import { H } from "./canvas.js";
 export type Player = {
   x: number;
   y: number;
+  z: number;
   floor: number;
   angle: number;
   pitch: number;
@@ -13,6 +14,7 @@ export type Player = {
 export const player: Player = {
   x: 3.5,
   y: 3.5,
+  z: 0,
   floor: 0,
   angle: 0,
   pitch: 0,

@@ -1,13 +1,13 @@
-import { map } from "./world.js";
 import { player } from "./player.js";
+import { map } from "./world.js";
 
 export function castRays(
   ctx: CanvasRenderingContext2D,
   W: number,
-  H: number
+  H: number,
+  heightOffset: number
 ) {
   const fov = Math.PI / 3;
-  const currentFloor = map[player.floor];
 
   for (let x = 0; x < W; x++) {
     const rayAngle = player.angle - fov / 2 + (x / W) * fov;
@@ -18,7 +18,7 @@ export function castRays(
       const rx = player.x + Math.cos(rayAngle) * dist;
       const ry = player.y + Math.sin(rayAngle) * dist;
 
-      const cell = currentFloor?.[Math.floor(ry)]?.[Math.floor(rx)];
+      const cell = map[player.floor]?.[Math.floor(ry)]?.[Math.floor(rx)];
       // 壁（1）または階段（3, 4）にヒットしたら終了
       if (cell === 1 || cell === 3 || cell === 4) {
         hitCell = cell;
@@ -54,7 +54,7 @@ export function castRays(
 
     ctx.fillRect(
       x,
-      H / 2 - wallHeight / 2 + player.pitch,
+      H / 2 - wallHeight / 2 + player.pitch - heightOffset,
       1,
       wallHeight
     );
