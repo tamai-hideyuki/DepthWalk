@@ -1,7 +1,7 @@
 import { player } from "./player.js";
 import { getCell, isWall, isOutside, map, CELL } from "./world.js";
 import { gray } from "./colors.js";
-import { drawDoorTexture, drawWindowTexture } from "./textures.js";
+import { drawDoorTexture, drawEntranceDoorTexture, drawWindowTexture } from "./textures.js";
 import { RENDER, BRIGHTNESS } from "./constants.js";
 
 type RayHit = {
@@ -99,6 +99,8 @@ function renderWallSlice(
     drawDoorTexture(ctx, x, wallTop, wallHeight, wallPos, brightness, hit.cell === CELL.STAIR_UP);
   } else if (hit.cell === CELL.WINDOW) {
     drawWindowTexture(ctx, x, wallTop, wallHeight, wallPos, brightness, hit.dist, playerOutside);
+  } else if (hit.cell === CELL.DOOR) {
+    drawEntranceDoorTexture(ctx, x, wallTop, wallHeight, wallPos, brightness);
   }
 }
 

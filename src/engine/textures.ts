@@ -101,6 +101,50 @@ export function drawDoorTexture(
   }
 }
 
+// 玄関ドアのテクスチャ
+export function drawEntranceDoorTexture(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  wallTop: number,
+  wallHeight: number,
+  wallPos: number,
+  brightness: number
+) {
+  // ベースの木の色
+  ctx.fillStyle = wood(brightness, 0.8);
+  ctx.fillRect(x, wallTop, 1, wallHeight);
+
+  // 外枠
+  const frameWidth = 0.1;
+  if (wallPos < frameWidth || wallPos > 1 - frameWidth) {
+    ctx.fillStyle = wood(brightness, 0.5);
+    ctx.fillRect(x, wallTop, 1, wallHeight);
+  }
+
+  // 上下の枠
+  const topFrameHeight = wallHeight * 0.06;
+  const bottomFrameHeight = wallHeight * 0.04;
+  ctx.fillStyle = wood(brightness, 0.5);
+  ctx.fillRect(x, wallTop, 1, topFrameHeight);
+  ctx.fillRect(x, wallTop + wallHeight - bottomFrameHeight, 1, bottomFrameHeight);
+
+  // 中央パネル
+  if (wallPos > 0.2 && wallPos < 0.8) {
+    const panelTop = wallTop + wallHeight * 0.15;
+    const panelHeight = wallHeight * 0.7;
+    ctx.fillStyle = wood(brightness, 0.65);
+    ctx.fillRect(x, panelTop, 1, panelHeight);
+  }
+
+  // ドアノブ
+  if (wallPos > 0.75 && wallPos < 0.88) {
+    const knobY = wallTop + wallHeight * 0.5;
+    const knobHeight = wallHeight * 0.06;
+    ctx.fillStyle = rgbShade(brightness, 0.9, 0.8, 0.4);
+    ctx.fillRect(x, knobY, 1, knobHeight);
+  }
+}
+
 // 窓のテクスチャ - 軽量版
 // viewFromOutside: 外から見ているかどうか
 export function drawWindowTexture(
