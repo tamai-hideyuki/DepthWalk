@@ -5,6 +5,7 @@ import { H } from "./canvas.js";
 export type Player = {
   x: number;
   y: number;
+  floor: number;
   angle: number;
   pitch: number;
 };
@@ -12,9 +13,21 @@ export type Player = {
 export const player: Player = {
   x: 3.5,
   y: 3.5,
+  floor: 0,
   angle: 0,
   pitch: 0,
 };
+
+// 階段移動のクールダウン
+let stairCooldown = 0;
+
+function isWalkable(cell: number | undefined) {
+  return cell === 0 || cell === 2 || cell === 3 || cell === 4;
+}
+
+function getCell(floor: number, y: number, x: number): number | undefined {
+  return map[floor]?.[Math.floor(y)]?.[Math.floor(x)];
+}
 
 export function updatePlayer() {
   const speed = 0.05;
@@ -40,21 +53,42 @@ export function updatePlayer() {
 
   // 前進
   if (keys["w"]) {
-    if (map[Math.floor(player.y)]?.[Math.floor(player.x + dx)] === 0) {
+    if (isWalkable(getCell(player.floor, player.y, player.x + dx))) {
       player.x += dx;
     }
-    if (map[Math.floor(player.y + dy)]?.[Math.floor(player.x)] === 0) {
+    if (isWalkable(getCell(player.floor, player.y + dy, player.x))) {
       player.y += dy;
     }
   }
 
   // 後退
   if (keys["s"]) {
-    if (map[Math.floor(player.y)]?.[Math.floor(player.x - dx)] === 0) {
+    if (isWalkable(getCell(player.floor, player.y, player.x - dx))) {
       player.x -= dx;
     }
-    if (map[Math.floor(player.y - dy)]?.[Math.floor(player.x)] === 0) {
+    if (isWalkable(getCell(player.floor, player.y - dy, player.x))) {
       player.y -= dy;
     }
+  }
+
+  // クールダウン減少
+  if (stairCooldown > 0) {
+    stairCooldown--;
+    return; // クールダウン中は階段判定しない
+  }
+
+  // 階段判定
+  const currentCell = getCell(player.floor, player.y, player.x);
+
+  // 上り階段（3）に乗ったら上の階へ
+  if (currentCell === 3 && player.floor < map.length - 1) {
+    player.floor += 1;
+    stairCooldown = 30; // 約0.5秒のクールダウン
+  }
+
+  // 下り階段（4）に乗ったら下の階へ
+  if (currentCell === 4 && player.floor > 0) {
+    player.floor -= 1;
+    stairCooldown = 30;
   }
 }
