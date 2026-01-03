@@ -42,7 +42,8 @@ function renderCeiling(heightOffset: number, outside: boolean) {
       ctx.fillRect(0, y, W, 1);
     }
   } else {
-    ctx.fillStyle = "#1a1a1a";
+    // 室内の天井（壁より暗めの白色）
+    ctx.fillStyle = "#c8c8c8";
     ctx.fillRect(0, 0, W, Math.max(0, ceilingEnd));
   }
 }
