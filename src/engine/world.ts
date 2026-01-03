@@ -8,6 +8,7 @@ export const CELL = {
   WINDOW: 5,  // 窓（通過可能）
   GRASS: 6,   // 外の芝生
   DOOR: 7,    // ドア（出入口）
+  BENCH: 8,   // ベンチ
 } as const;
 
 export type CellType = typeof CELL[keyof typeof CELL];
@@ -25,7 +26,7 @@ export const map: number[][][] = [
     [6,6,1,0,0,0,0,0,0,0,0,1,6,6],
     [6,6,7,0,0,0,3,0,0,0,0,5,6,6],
     [6,6,1,0,0,0,0,0,0,0,0,1,6,6],
-    [6,6,5,0,0,0,0,0,0,0,0,1,6,6],
+    [6,6,5,0,0,0,0,8,8,8,0,1,6,6],
     [6,6,1,0,0,0,0,0,0,0,0,5,6,6],
     [6,6,1,1,5,1,1,1,5,1,1,1,6,6],
     [6,6,6,6,6,6,6,6,6,6,6,6,6,6],
@@ -40,7 +41,7 @@ export const map: number[][][] = [
     [6,6,5,0,0,0,0,0,0,0,0,5,6,6],
     [6,6,1,0,0,0,0,0,0,0,0,1,6,6],
     [6,6,1,0,0,0,0,0,0,0,0,1,6,6],
-    [6,6,1,0,0,0,0,0,0,0,0,5,6,6],
+    [6,6,1,0,0,0,4,0,0,0,0,5,6,6],
     [6,6,1,0,0,0,0,0,0,0,0,1,6,6],
     [6,6,5,0,0,0,0,0,0,0,0,1,6,6],
     [6,6,1,0,0,0,0,0,0,0,0,5,6,6],
@@ -63,6 +64,11 @@ export function isWalkable(cell: CellType | undefined): boolean {
 // 壁判定（レイキャスト用）
 export function isWall(cell: CellType | undefined): boolean {
   return cell === CELL.WALL || cell === CELL.STAIR_UP || cell === CELL.STAIR_DOWN || cell === CELL.WINDOW || cell === CELL.DOOR;
+}
+
+// 家具判定（ベンチなど、低い障害物）
+export function isFurniture(cell: CellType | undefined): boolean {
+  return cell === CELL.BENCH;
 }
 
 // 階段判定

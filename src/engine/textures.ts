@@ -101,6 +101,36 @@ export function drawDoorTexture(
   }
 }
 
+// ベンチのテクスチャ
+export function drawBenchTexture(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  wallTop: number,
+  wallHeight: number,
+  wallPos: number,
+  brightness: number
+) {
+  // ベンチは下半分の高さ
+  const benchHeight = wallHeight * 0.3;
+  const benchTop = wallTop + wallHeight - benchHeight;
+
+  // 座面（木の板）
+  ctx.fillStyle = wood(brightness, 0.85);
+  ctx.fillRect(x, benchTop, 1, benchHeight * 0.25);
+
+  // 座面の側面
+  ctx.fillStyle = wood(brightness, 0.7);
+  ctx.fillRect(x, benchTop + benchHeight * 0.25, 1, benchHeight * 0.15);
+
+  // 脚（両端のみ）
+  const legTop = benchTop + benchHeight * 0.4;
+  const legHeight = benchHeight * 0.6;
+  if (wallPos < 0.12 || wallPos > 0.88) {
+    ctx.fillStyle = wood(brightness, 0.5);
+    ctx.fillRect(x, legTop, 1, legHeight);
+  }
+}
+
 // 玄関ドアのテクスチャ
 export function drawEntranceDoorTexture(
   ctx: CanvasRenderingContext2D,

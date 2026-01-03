@@ -1,7 +1,7 @@
 import { player } from "./player.js";
-import { getCell, isWall, isOutside, map, CELL } from "./world.js";
+import { getCell, isWall, isFurniture, isOutside, map, CELL } from "./world.js";
 import { gray } from "./colors.js";
-import { drawDoorTexture, drawEntranceDoorTexture, drawWindowTexture } from "./textures.js";
+import { drawDoorTexture, drawEntranceDoorTexture, drawWindowTexture, drawBenchTexture } from "./textures.js";
 import { RENDER, BRIGHTNESS } from "./constants.js";
 
 type RayHit = {
@@ -12,29 +12,38 @@ type RayHit = {
   floor: number;
 };
 
-// 現在のフロアでレイキャスト（室内用）
-function castRay(rayAngle: number): RayHit {
+type RayResult = {
+  wall: RayHit | null;
+  furniture: RayHit | null;
+};
+
+// 現在のフロアでレイキャスト（室内用）- 壁と家具を別々に検出
+function castRay(rayAngle: number): RayResult {
   let dist = 0;
-  let hitCell = 0;
-  let hitX = 0;
-  let hitY = 0;
+  let wallHit: RayHit | null = null;
+  let furnitureHit: RayHit | null = null;
 
   while (dist < RENDER.MAX_DISTANCE) {
     const rx = player.x + Math.cos(rayAngle) * dist;
     const ry = player.y + Math.sin(rayAngle) * dist;
 
     const cell = getCell(player.floor, ry, rx);
+
+    // 家具を検出（まだ検出していない場合）
+    if (!furnitureHit && isFurniture(cell)) {
+      furnitureHit = { dist, cell: cell!, x: rx, y: ry, floor: player.floor };
+    }
+
+    // 壁を検出したら終了
     if (isWall(cell)) {
-      hitCell = cell!;
-      hitX = rx;
-      hitY = ry;
+      wallHit = { dist, cell: cell!, x: rx, y: ry, floor: player.floor };
       break;
     }
 
     dist += RENDER.RAY_STEP;
   }
 
-  return { dist, cell: hitCell, x: hitX, y: hitY, floor: player.floor };
+  return { wall: wallHit, furniture: furnitureHit };
 }
 
 // 全フロアをチェックしてヒットを返す（外から建物を見る用）
@@ -104,6 +113,25 @@ function renderWallSlice(
   }
 }
 
+function renderFurnitureSlice(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  hit: RayHit,
+  rayAngle: number,
+  H: number,
+  heightOffset: number
+) {
+  const correctedDist = hit.dist * Math.cos(rayAngle - player.angle);
+  const wallHeight = H / correctedDist;
+  const wallTop = H / 2 - wallHeight / 2 + player.pitch - heightOffset;
+  const brightness = Math.max(0, BRIGHTNESS.WALL_BASE - hit.dist * BRIGHTNESS.WALL_FALLOFF);
+  const wallPos = getWallPosition(hit, rayAngle);
+
+  if (hit.cell === CELL.BENCH) {
+    drawBenchTexture(ctx, x, wallTop, wallHeight, wallPos, brightness);
+  }
+}
+
 export function castRays(
   ctx: CanvasRenderingContext2D,
   W: number,
@@ -128,8 +156,15 @@ export function castRays(
       }
     } else {
       // 室内では現在のフロアのみ
-      const hit = castRay(rayAngle);
-      renderWallSlice(ctx, x, hit, rayAngle, H, heightOffset, 0, false);
+      const result = castRay(rayAngle);
+      // 先に壁を描画
+      if (result.wall) {
+        renderWallSlice(ctx, x, result.wall, rayAngle, H, heightOffset, 0, false);
+      }
+      // 家具は壁の手前に描画（上書き）
+      if (result.furniture) {
+        renderFurnitureSlice(ctx, x, result.furniture, rayAngle, H, heightOffset);
+      }
     }
   }
 }
