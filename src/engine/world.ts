@@ -5,6 +5,7 @@ export const CELL = {
   FLOOR: 2,
   STAIR_UP: 3,
   STAIR_DOWN: 4,
+  WINDOW: 5,  // 窓（外が見える）
 } as const;
 
 export type CellType = typeof CELL[keyof typeof CELL];
@@ -13,29 +14,29 @@ export type CellType = typeof CELL[keyof typeof CELL];
 export const map: number[][][] = [
   // 1階 (floor=0)
   [
-    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,5,1,1,1,5,1,1,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [5,0,0,0,0,0,0,0,0,5],
     [1,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,3,0,0,0,0,5],
     [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,3,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1],
+    [5,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,5],
+    [1,1,5,1,1,1,5,1,1,1],
   ],
   // 2階 (floor=1)
   [
-    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,5,1,1,1,5,1,1,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [5,0,0,0,0,0,0,0,0,5],
     [1,0,0,0,0,0,0,0,0,1],
     [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,4,0,0,0,0,5],
     [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,4,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1],
+    [5,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,5],
+    [1,1,5,1,1,1,5,1,1,1],
   ],
 ];
 
@@ -51,10 +52,15 @@ export function isWalkable(cell: CellType | undefined): boolean {
 
 // 壁判定（レイキャスト用）
 export function isWall(cell: CellType | undefined): boolean {
-  return cell === CELL.WALL || cell === CELL.STAIR_UP || cell === CELL.STAIR_DOWN;
+  return cell === CELL.WALL || cell === CELL.STAIR_UP || cell === CELL.STAIR_DOWN || cell === CELL.WINDOW;
 }
 
 // 階段判定
 export function isStair(cell: CellType | undefined): boolean {
   return cell === CELL.STAIR_UP || cell === CELL.STAIR_DOWN;
+}
+
+// 窓判定
+export function isWindow(cell: CellType | undefined): boolean {
+  return cell === CELL.WINDOW;
 }

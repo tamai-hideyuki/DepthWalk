@@ -1,7 +1,7 @@
 import { player } from "./player.js";
 import { getCell, isWall, CELL } from "./world.js";
 import { gray } from "./colors.js";
-import { drawDoorTexture } from "./textures.js";
+import { drawDoorTexture, drawWindowTexture } from "./textures.js";
 import { RENDER, BRIGHTNESS } from "./constants.js";
 
 type RayHit = {
@@ -56,13 +56,15 @@ function renderWallSlice(
   const wallHeight = H / correctedDist;
   const wallTop = H / 2 - wallHeight / 2 + player.pitch - heightOffset;
   const brightness = Math.max(0, BRIGHTNESS.WALL_BASE - hit.dist * BRIGHTNESS.WALL_FALLOFF);
+  const wallPos = getWallPosition(hit, rayAngle);
 
   if (hit.cell === CELL.WALL) {
     ctx.fillStyle = gray(brightness);
     ctx.fillRect(x, wallTop, 1, wallHeight);
   } else if (hit.cell === CELL.STAIR_UP || hit.cell === CELL.STAIR_DOWN) {
-    const wallPos = getWallPosition(hit, rayAngle);
     drawDoorTexture(ctx, x, wallTop, wallHeight, wallPos, brightness, hit.cell === CELL.STAIR_UP);
+  } else if (hit.cell === CELL.WINDOW) {
+    drawWindowTexture(ctx, x, wallTop, wallHeight, wallPos, brightness, hit.dist);
   }
 }
 

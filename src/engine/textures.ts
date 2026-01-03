@@ -1,4 +1,4 @@
-import { rgb, rgbShade, wood } from "./colors.js";
+import { rgb, rgbShade, wood, grass, sky, windowFrame } from "./colors.js";
 
 // ドアのテクスチャパターンを描画
 export function drawDoorTexture(
@@ -99,4 +99,60 @@ export function drawDoorTexture(
     ctx.fillStyle = arrowColor;
     ctx.fillRect(x, arrowY, 1, arrowHeight);
   }
+}
+
+// 窓のテクスチャ（外の景色が見える）- 軽量版
+export function drawWindowTexture(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  wallTop: number,
+  wallHeight: number,
+  wallPos: number,
+  brightness: number,
+  dist: number
+) {
+  const frameWidth = 0.1;
+  const isFrame = wallPos < frameWidth || wallPos > 1 - frameWidth;
+
+  // 窓枠
+  const topFrameHeight = wallHeight * 0.08;
+  const bottomFrameHeight = wallHeight * 0.06;
+
+  if (isFrame) {
+    // 縦の窓枠
+    ctx.fillStyle = windowFrame(brightness);
+    ctx.fillRect(x, wallTop, 1, wallHeight);
+    return;
+  }
+
+  // 窓の中（外の景色）
+  const glassTop = wallTop + topFrameHeight;
+  const glassHeight = wallHeight - topFrameHeight - bottomFrameHeight;
+
+  // 外の景色を描画（帯で一括描画 - 軽量化）
+  const skyHeight = glassHeight * 0.4;
+  const skyBrightness = Math.max(50, 150 - dist * 5);
+  const grassBrightness = Math.max(30, 120 - dist * 5);
+
+  // 空（単色で一括描画）
+  ctx.fillStyle = sky(skyBrightness, 0.5);
+  ctx.fillRect(x, glassTop, 1, skyHeight);
+
+  // 芝生（単色で一括描画）
+  const grassTop = glassTop + skyHeight;
+  const grassHeight2 = glassHeight - skyHeight;
+  ctx.fillStyle = grass(grassBrightness, 1);
+  ctx.fillRect(x, grassTop, 1, grassHeight2);
+
+  // 窓の桟（十字）
+  const crossWidth = 0.04;
+  if (Math.abs(wallPos - 0.5) < crossWidth) {
+    ctx.fillStyle = windowFrame(brightness);
+    ctx.fillRect(x, glassTop, 1, glassHeight);
+  }
+
+  // 上下の窓枠
+  ctx.fillStyle = windowFrame(brightness);
+  ctx.fillRect(x, wallTop, 1, topFrameHeight);
+  ctx.fillRect(x, wallTop + wallHeight - bottomFrameHeight, 1, bottomFrameHeight);
 }
